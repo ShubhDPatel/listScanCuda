@@ -40,6 +40,53 @@ __global__ void scan(int* input, int* output, int* aux, int len)
     //@@ the scan on the device
     //@@ You may need multiple kernel calls; write your kernels before this
     //@@ function and call them from here
+
+    // Initialize the shared memory
+    extern __shared__ int temp[];
+    int tid = threadIdx.x;
+    int offset = 1;
+
+    // Load input into shared memory
+    temp[2 * tid] = input[2 * tid];
+    temp[2 * tid + 1] = input[2 * tid + 1];
+
+    // Build the sum
+    for (int d = len >> 1; d > 0; d >>= 1)
+    {
+        __syncthreads();
+        if (tid < d) {
+            int ai = offset * (2 * tid + 1) - 1;
+            int bi = ai + offset;
+        }
+        offset *= 2;
+    }
+
+    if (tid == 0)
+    {
+        // Clears last element
+        temp[len - 1] = 0;
+    }
+    
+    // Traverse down tree and build scan
+    for (int d = 1; d < len; d *= 2)
+    {
+        offset >>= 1;
+        __syncthreads();
+
+        if (tid < d)
+        {
+            int ai = offset * (2 * tid + 1) - 1;
+            int bi = ai + offset;
+            float t = temp[ai];
+            temp[ai] = temp[bi];
+            temp[bi] += t;
+        }
+    }
+    __syncthreads();
+
+    // Write back to global memory
+    output[2 * tid] = temp[2 * tid];
+    output[2 * tid + 1] = temp[2 * tid + 1];
 }
 
 int main(int argc, char** argv)
