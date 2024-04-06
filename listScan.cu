@@ -59,7 +59,7 @@ __global__ void scan(int* input, int* output, int* aux, int len)
             int bi = offset * (2 * tid + 2) - 1;
             temp[bi] += temp[ai];
         }
-        offset *= 2;
+        offset <<= 1;
     }
 
     if (tid == 0)
@@ -69,7 +69,7 @@ __global__ void scan(int* input, int* output, int* aux, int len)
     }
     
     // Traverse down tree and build scan
-    for (int d = 1; d < len; d *= 2)
+    for (int d = 1; d < len; d <<= 1)
     {
         offset >>= 1;
         __syncthreads();
