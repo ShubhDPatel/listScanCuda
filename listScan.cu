@@ -42,7 +42,7 @@ __global__ void scan(int* input, int* output, int* aux, int len)
     //@@ function and call them from here
 
     // Initialize the shared memory
-    extern __shared__ int temp[];
+    extern __shared__ float temp[];
     int tid = threadIdx.x;
     int offset = 1;
 
@@ -56,7 +56,7 @@ __global__ void scan(int* input, int* output, int* aux, int len)
         __syncthreads();
         if (tid < d) {
             int ai = offset * (2 * tid + 1) - 1;
-            int bi = ai + offset;
+            int bi = offset * (2 * tid + 2) - 1;
             temp[bi] += temp[ai];
         }
         offset *= 2;
@@ -77,7 +77,7 @@ __global__ void scan(int* input, int* output, int* aux, int len)
         if (tid < d)
         {
             int ai = offset * (2 * tid + 1) - 1;
-            int bi = ai + offset;
+            int bi = offset * (2 * tid + 2) - 1;
             float t = temp[ai];
             temp[ai] = temp[bi];
             temp[bi] += t;
@@ -163,7 +163,7 @@ int main(int argc, char** argv)
 
     //@@ Modify this to complete the functionality of the scan
     //@@ on the device
-    scan<<<gridDim, blockDim>>>(deviceInput, deviceOutput, deviceAuxArray, numElements);
+    scan<<<gridDim, blockDim, 2 * BLOCK_SIZE * sizeof(float)>>>(deviceInput, deviceOutput, deviceAuxArray, numElements);
 
     cudaDeviceSynchronize();
 
