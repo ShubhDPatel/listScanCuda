@@ -86,8 +86,8 @@ __global__ void scan(int* input, int* output, int* aux, int len)
     __syncthreads();
 
     // Write back to global memory
-    output[2 * tid] = temp[2 * tid];
-    output[2 * tid + 1] = temp[2 * tid + 1];
+    output[2 * tid] = temp[2 * tid + 1];
+    output[2 * tid + 1] = temp[2 * tid + 2];
 }
 
 int main(int argc, char** argv)
