@@ -163,7 +163,7 @@ int main(int argc, char** argv)
 
     //@@ Modify this to complete the functionality of the scan
     //@@ on the device
-    scan<<<gridDim, blockDim, 2 * BLOCK_SIZE * sizeof(float)>>>(deviceInput, deviceOutput, deviceAuxArray, numElements);
+    scan<<<gridDim, blockDim, 2 * BLOCK_SIZE * sizeof(float)>>>(deviceInput, deviceOutput, deviceAuxArray, BLOCK_SIZE);
 
     cudaDeviceSynchronize();
 
