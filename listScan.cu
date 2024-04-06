@@ -57,6 +57,7 @@ __global__ void scan(int* input, int* output, int* aux, int len)
         if (tid < d) {
             int ai = offset * (2 * tid + 1) - 1;
             int bi = ai + offset;
+            temp[bi] += temp[ai];
         }
         offset *= 2;
     }
