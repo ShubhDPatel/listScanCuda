@@ -88,6 +88,9 @@ __global__ void scan(int* input, int* output, int* aux, int len)
     // Write back to global memory
     output[2 * tid] = temp[2 * tid + 1];
     output[2 * tid + 1] = temp[2 * tid + 2];
+
+    // Write back to aux array
+    aux[tid] = temp[tid];
 }
 
 int main(int argc, char** argv)
