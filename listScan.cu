@@ -115,6 +115,7 @@ int main(int argc, char** argv)
 
     //@@ Modify this to complete the functionality of the scan
     //@@ on the device
+    scan<<<gridDim, blockDim>>>(deviceInput, deviceOutput, deviceAuxArray, numElements);
 
     cudaDeviceSynchronize();
 
