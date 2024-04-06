@@ -107,6 +107,8 @@ int main(int argc, char** argv)
     printf("Copying input memory to the GPU: %f ms\n", stw.getTime());
 
     //@@ Initialize the grid and block dimensions here
+    dim3 blockDim(BLOCK_SIZE, 1, 1);
+    dim3 gridDim(ceil((float)numElements / blockDim.x), 1, 1);
 
     stw.reset();
     stw.start();
