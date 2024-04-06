@@ -19,7 +19,7 @@
 /*                                                                        */
 /*                                                                        */
 /*                                                                        */
-/* Signed:_____________________________________ Date:_____________        */
+/* Signed: Shubh Patel  Date: 4/6/2024                                    */
 /*                                                                        */
 /*                                                                        */
 /* CPSC 677 CUDA Prefix Sum lab, Version 1.02, Spring 2024.               */
