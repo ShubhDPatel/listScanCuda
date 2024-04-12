@@ -48,7 +48,7 @@ __global__ void scan(int* input, int* output, int* aux, int len)
     if (i < len)
     {
         temp[2 * threadIdx.x] = input[i];
-        temp[2 * threadIdx.x + 1] = input[i];
+        // temp[2 * threadIdx.x + 1] = input[i];
     }
 
     for (unsigned int stride = 1; stride <= BLOCK_SIZE; stride <<= 1)
