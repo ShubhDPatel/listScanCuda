@@ -44,13 +44,14 @@ __global__ void scan(int* input, int* output, int* aux, int len)
     // Initialize the shared memory
     extern __shared__ float temp[];
 
+    // Load data into shared memory
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i < len)
     {
         temp[2 * threadIdx.x] = input[i];
-        // temp[2 * threadIdx.x + 1] = input[i];
     }
 
+    // Builds the sum
     for (unsigned int stride = 1; stride <= BLOCK_SIZE; stride <<= 1)
     {
         int index = (threadIdx.x + 1) * stride * 2 - 1;
@@ -61,6 +62,7 @@ __global__ void scan(int* input, int* output, int* aux, int len)
         __syncthreads();
     }
 
+    // Traveres the sum and build the scan
     for (unsigned int stride = BLOCK_SIZE / 2; stride > 0; stride >>= 1)
     {
         __syncthreads();
@@ -71,6 +73,8 @@ __global__ void scan(int* input, int* output, int* aux, int len)
         }
     }
     __syncthreads();
+
+    // Adds back to global memory
     if (i < len)
     {
         output[i] = temp[2 * threadIdx.x];
