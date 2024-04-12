@@ -43,54 +43,39 @@ __global__ void scan(int* input, int* output, int* aux, int len)
 
     // Initialize the shared memory
     extern __shared__ float temp[];
-    int tid = threadIdx.x;
-    int offset = 1;
 
-    // Load input into shared memory
-    temp[2 * tid] = input[2 * tid];
-    temp[2 * tid + 1] = input[2 * tid + 1];
-
-    // Build the sum
-    for (int d = len >> 1; d > 0; d >>= 1)
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < len)
     {
-        __syncthreads();
-        if (tid < d) {
-            int ai = offset * (2 * tid + 1) - 1;
-            int bi = offset * (2 * tid + 2) - 1;
-            temp[bi] += temp[ai];
-        }
-        offset <<= 1;
+        temp[2 * threadIdx.x] = input[i];
+        temp[2 * threadIdx.x + 1] = input[i];
     }
 
-    if (tid == 0)
+    for (unsigned int stride = 1; stride <= BLOCK_SIZE; stride <<= 1)
     {
-        // Clears last element
-        temp[len - 1] = 0;
-    }
-    
-    // Traverse down tree and build scan
-    for (int d = 1; d < len; d <<= 1)
-    {
-        offset >>= 1;
-        __syncthreads();
-
-        if (tid < d)
+        int index = (threadIdx.x + 1) * stride * 2 - 1;
+        if (index < 2 * BLOCK_SIZE)
         {
-            int ai = offset * (2 * tid + 1) - 1;
-            int bi = offset * (2 * tid + 2) - 1;
-            float t = temp[ai];
-            temp[ai] = temp[bi];
-            temp[bi] += t;
+            temp[index] += temp[index - stride];
+        }
+        __syncthreads();
+    }
+
+    for (unsigned int stride = BLOCK_SIZE / 2; stride > 0; stride >>= 1)
+    {
+        __syncthreads();
+        int index = (threadIdx.x + 1) * stride * 2 - 1;
+        if (index + stride < 2 * BLOCK_SIZE)
+        {
+            temp[index + stride] += temp[index];
         }
     }
     __syncthreads();
-
-    // Write back to global memory
-    output[2 * tid] = temp[2 * tid + 1];
-    output[2 * tid + 1] = temp[2 * tid + 2];
-
-    // Write back to aux array
-    aux[tid] = temp[tid];
+    if (i < len)
+    {
+        output[i] = temp[2 * threadIdx.x];
+        aux[i] = temp[2 * threadIdx.x + 1];
+    }
 }
 
 int main(int argc, char** argv)
