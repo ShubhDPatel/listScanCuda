@@ -78,7 +78,7 @@ __global__ void scan(int* input, int* output, int* aux, int len)
     if (i < len)
     {
         output[i] = temp[2 * threadIdx.x];
-        aux[i] = temp[2 * threadIdx.x + 1];
+        aux[i] = temp[2 * threadIdx.x];
     }
 }
 
